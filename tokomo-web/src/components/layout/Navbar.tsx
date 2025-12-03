@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
           <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-xl">T</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">TokomoApp</span>
+          <span className="text-xl font-bold tracking-tight">TOKOMO</span>
         </Link>
 
         {/* Right Side Actions */}

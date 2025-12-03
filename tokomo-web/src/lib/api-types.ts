@@ -320,7 +320,7 @@ export interface UpdateUserRequest {
   isActive?: boolean;
 }
 
-export interface ResetPasswordRequest {
+export interface AdminResetPasswordRequest {
   newPassword: string;
 }
 

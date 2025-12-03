@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [config, setConfig] = useState<SiteConfig | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [showCustomerService, setShowCustomerService] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';

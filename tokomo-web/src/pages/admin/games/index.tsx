@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Search, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
@@ -88,6 +88,50 @@ const AdminGamesPage: React.FC = () => {
     e.preventDefault();
     setCurrentPage(1);
     fetchGames(1, searchQuery, gameTypeFilter);
+  };
+
+  // Handle export
+  const handleExportGames = async () => {
+    try {
+      // Fetch all games for export
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '10000', // Get all games
+      });
+
+      const response = await fetch(`${API_BASE_URL}/game/list?${params}`);
+      const data: GameListResponse = await response.json();
+
+      if (response.ok) {
+        // Convert games data to Excel format
+        const exportData = data.games.map((game, index) => ({
+          '编号': index + 1,
+          '类型': game.game_type || '',
+          '游戏名': game.game_name,
+          '百度盘': game.download_url,
+          '提取码': game.password || '',
+          '解压码': game.extract_password || '',
+          'UUID': game.uuid,
+        }));
+
+        // Create workbook and worksheet
+        const { default: XLSX } = await import('xlsx');
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, '游戏列表');
+
+        // Generate file name with current date
+        const fileName = `游戏列表_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
+        
+        // Write file
+        XLSX.writeFile(wb, fileName);
+        toast.success(`成功导出 ${data.games.length} 个游戏`);
+      } else {
+        throw new Error('获取游戏数据失败');
+      }
+    } catch (error: any) {
+      toast.error(error.message || '导出失败');
+    }
   };
 
   // Handle import
@@ -298,6 +342,9 @@ const AdminGamesPage: React.FC = () => {
               <CardDescription>管理所有游戏资源 (共 {totalGames} 个游戏)</CardDescription>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handleExportGames}>
+                <Download className="mr-2 h-4 w-4" /> 导出Excel
+              </Button>
               <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline">

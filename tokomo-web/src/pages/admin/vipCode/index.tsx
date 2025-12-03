@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -451,19 +451,17 @@ const AdminVipCodePage: React.FC = () => {
               <Download className="mr-2 h-4 w-4" />
               导出
             </Button>
-            <Button variant="outline" asChild>
-              <label htmlFor="import-file" className="cursor-pointer">
-                <Upload className="mr-2 h-4 w-4" />
-                导入
-                <input
-                  id="import-file"
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  className="hidden"
-                  onChange={handleImport}
-                />
-              </label>
+            <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
+              <Upload className="mr-2 h-4 w-4" />
+              导入
             </Button>
+            <input
+              id="import-file"
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleImport}
+            />
             <Button variant="outline" onClick={() => setShowBatchDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               批量生成

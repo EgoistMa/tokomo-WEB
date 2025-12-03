@@ -7,7 +7,7 @@ import { Save, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
-import type { SiteConfig, ImageConfig, UpdateSiteConfigRequest } from '@/lib/api-types';
+import type { SiteConfig, UpdateSiteConfigRequest } from '@/lib/api-types';
 
 const AdminConfigPage: React.FC = () => {
   const navigate = useNavigate();

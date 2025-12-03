@@ -1,12 +1,7 @@
 export default {
-  fetch(request) {
-    const url = new URL(request.url);
-
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        name: "Cloudflare",
-      });
-    }
-		return new Response(null, { status: 404 });
+  async fetch() {
+    // This is a placeholder worker for the SPA
+    // All requests will be handled by Cloudflare's built-in asset serving
+    return new Response("OK", { status: 200 });
   },
 } satisfies ExportedHandler<Env>;
