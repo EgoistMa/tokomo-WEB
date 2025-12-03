@@ -163,6 +163,7 @@ export interface RedeemCode {
   used: number;
   used_at: string | null;
   used_by: number | null;
+  is_free: number;
   created_at: string;
 }
 
@@ -179,6 +180,8 @@ export interface RedeemCodesResponse {
 export interface CreateRedeemCodeRequest {
   code?: string;
   points: number;
+  groupId?: number;
+  isFree?: boolean;
 }
 
 export interface CreateRedeemCodeResponse {
@@ -191,6 +194,8 @@ export interface BatchCreateRedeemCodeRequest {
   count: number;
   points: number;
   prefix?: string;
+  groupId?: number;
+  isFree?: boolean;
 }
 
 export interface BatchCreateRedeemCodeResponse {
@@ -203,6 +208,7 @@ export interface BatchCreateRedeemCodeResponse {
 export interface UpdateRedeemCodeRequest {
   points?: number;
   used?: number;
+  isFree?: boolean;
 }
 
 export interface ImportRedeemCodesResponse {

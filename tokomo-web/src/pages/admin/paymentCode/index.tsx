@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Download, Upload, Loader2, Trash2, Edit, Copy } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
@@ -54,14 +55,18 @@ const AdminPaymentCodePage: React.FC = () => {
   // Form states
   const [createCode, setCreateCode] = useState('');
   const [createPoints, setCreatePoints] = useState('');
+  const [createIsFree, setCreateIsFree] = useState(false);
   const [batchCount, setBatchCount] = useState('');
   const [batchPoints, setBatchPoints] = useState('');
   const [batchPrefix, setBatchPrefix] = useState('');
+  const [batchIsFree, setBatchIsFree] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [editCode, setEditCode] = useState('');
   const [editPoints, setEditPoints] = useState('');
+  const [editIsFree, setEditIsFree] = useState(false);
+  const [filterFree, setFilterFree] = useState<string>('all');
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -85,6 +90,10 @@ const AdminPaymentCodePage: React.FC = () => {
 
       if (filterUsed !== 'all') {
         params.append('used', filterUsed);
+      }
+
+      if (filterFree !== 'all') {
+        params.append('isFree', filterFree === 'true' ? '1' : '0');
       }
 
       const response = await fetch(`${API_BASE_URL}/redeem/codes?${params}`, {
@@ -111,12 +120,12 @@ const AdminPaymentCodePage: React.FC = () => {
   // Reset page when filter changes
   useEffect(() => {
     setPage(1);
-  }, [filterUsed]);
+  }, [filterUsed, filterFree]);
 
   useEffect(() => {
     fetchCodes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, filterUsed]);
+  }, [page, filterUsed, filterFree]);
 
   // Create single code
   const handleCreate = async () => {
@@ -137,6 +146,7 @@ const AdminPaymentCodePage: React.FC = () => {
         body: JSON.stringify({
           code: createCode.trim() || undefined,
           points: parseInt(createPoints),
+          isFree: createIsFree,
         }),
       });
 
@@ -149,6 +159,7 @@ const AdminPaymentCodePage: React.FC = () => {
         setShowCreateDialog(false);
         setCreateCode('');
         setCreatePoints('');
+        setCreateIsFree(false);
         fetchCodes();
       } else {
         throw new Error(data.error || '创建失败');
@@ -188,6 +199,7 @@ const AdminPaymentCodePage: React.FC = () => {
           count,
           points,
           prefix: batchPrefix.trim() || undefined,
+          isFree: batchIsFree,
         }),
       });
 
@@ -201,6 +213,7 @@ const AdminPaymentCodePage: React.FC = () => {
         setBatchCount('');
         setBatchPoints('');
         setBatchPrefix('');
+        setBatchIsFree(false);
         fetchCodes();
       } else {
         throw new Error(data.error || '批量生成失败');
@@ -316,6 +329,7 @@ const AdminPaymentCodePage: React.FC = () => {
     setEditingCode(code);
     setEditCode(code.code);
     setEditPoints(code.points.toString());
+    setEditIsFree(code.is_free === 1);
     setShowEditDialog(true);
   };
 
@@ -364,6 +378,7 @@ const AdminPaymentCodePage: React.FC = () => {
           body: JSON.stringify({
             code: editCode.trim(),
             points: parseInt(editPoints),
+            isFree: editIsFree,
           }),
         });
 
@@ -380,7 +395,10 @@ const AdminPaymentCodePage: React.FC = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ points: parseInt(editPoints) }),
+          body: JSON.stringify({ 
+            points: parseInt(editPoints),
+            isFree: editIsFree,
+          }),
         });
 
         if (!response.ok) {
@@ -394,6 +412,7 @@ const AdminPaymentCodePage: React.FC = () => {
       setEditingCode(null);
       setEditCode('');
       setEditPoints('');
+      setEditIsFree(false);
       fetchCodes();
     } catch (error: any) {
       toast.error(error.message || '更新失败');
@@ -454,17 +473,32 @@ const AdminPaymentCodePage: React.FC = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <Label>筛选:</Label>
-              <Select value={filterUsed} onValueChange={setFilterUsed}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="选择状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部</SelectItem>
-                  <SelectItem value="0">未使用</SelectItem>
-                  <SelectItem value="1">已使用</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Label>状态:</Label>
+                <Select value={filterUsed} onValueChange={setFilterUsed}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="选择状态" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="0">未使用</SelectItem>
+                    <SelectItem value="1">已使用</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label>类型:</Label>
+                <Select value={filterFree} onValueChange={setFilterFree}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="选择类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="false">付费码</SelectItem>
+                    <SelectItem value="true">免费码</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -478,6 +512,7 @@ const AdminPaymentCodePage: React.FC = () => {
                   <TableHead>ID</TableHead>
                   <TableHead>兑换码</TableHead>
                   <TableHead>积分</TableHead>
+                  <TableHead>类型</TableHead>
                   <TableHead>状态</TableHead>
                   <TableHead>使用时间</TableHead>
                   <TableHead>使用者ID</TableHead>
@@ -488,7 +523,7 @@ const AdminPaymentCodePage: React.FC = () => {
               <TableBody>
                 {codes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                       暂无兑换码
                     </TableCell>
                   </TableRow>
@@ -509,6 +544,13 @@ const AdminPaymentCodePage: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>{code.points}</TableCell>
+                      <TableCell>
+                        {code.is_free ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600">免费码</Badge>
+                        ) : (
+                          <Badge variant="default">付费码</Badge>
+                        )}
+                      </TableCell>
                       <TableCell>
                         {code.used ? (
                           <Badge variant="secondary">已使用</Badge>
@@ -604,6 +646,16 @@ const AdminPaymentCodePage: React.FC = () => {
                 onChange={(e) => setCreatePoints(e.target.value)}
               />
             </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="create-free"
+                checked={createIsFree}
+                onCheckedChange={(checked) => setCreateIsFree(!!checked)}
+              />
+              <Label htmlFor="create-free" className="text-sm font-normal">
+                免费码 (不计入群组统计)
+              </Label>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
@@ -652,6 +704,16 @@ const AdminPaymentCodePage: React.FC = () => {
                 value={batchPrefix}
                 onChange={(e) => setBatchPrefix(e.target.value)}
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="batch-free"
+                checked={batchIsFree}
+                onCheckedChange={(checked) => setBatchIsFree(!!checked)}
+              />
+              <Label htmlFor="batch-free" className="text-sm font-normal">
+                免费码 (不计入群组统计)
+              </Label>
             </div>
           </div>
           <DialogFooter>
@@ -779,6 +841,16 @@ const AdminPaymentCodePage: React.FC = () => {
                 value={editPoints}
                 onChange={(e) => setEditPoints(e.target.value)}
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="edit-free"
+                checked={editIsFree}
+                onCheckedChange={(checked) => setEditIsFree(!!checked)}
+              />
+              <Label htmlFor="edit-free" className="text-sm font-normal">
+                免费码 (不计入群组统计)
+              </Label>
             </div>
           </div>
           <DialogFooter>
