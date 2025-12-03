@@ -94,17 +94,27 @@ const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
       </div>
 
       {/* Controls */}
-      <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button variant="outline" size="icon" className="rounded-full bg-background/50 backdrop-blur" onClick={prev}>
+      <div className="absolute inset-0 flex items-center justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full bg-background/50 backdrop-blur pointer-events-auto z-10" 
+          onClick={prev}
+        >
           <ChevronLeft className="h-6 w-6" />
         </Button>
-        <Button variant="outline" size="icon" className="rounded-full bg-background/50 backdrop-blur" onClick={next}>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full bg-background/50 backdrop-blur pointer-events-auto z-10" 
+          onClick={next}
+        >
           <ChevronRight className="h-6 w-6" />
         </Button>
       </div>
 
       {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {displaySlides.map((_, idx) => (
           <button
             key={idx}
