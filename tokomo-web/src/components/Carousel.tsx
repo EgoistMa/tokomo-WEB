@@ -11,6 +11,15 @@ interface CarouselProps {
 const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
   const [current, setCurrent] = useState(0);
 
+  // 验证和标准化URL
+  const normalizeUrl = (url: string): string => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
   // 默认幻灯片（当没有从API获取到数据时使用）
   const defaultSlides: ImageConfig[] = [
     {
@@ -78,10 +87,14 @@ const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
             >
               {slide.link ? (
                 <a
-                  href={slide.link}
+                  href={normalizeUrl(slide.link || '')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full h-full cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => {
+                    console.log('Carousel link clicked:', slide.link);
+                    console.log('Normalized URL:', normalizeUrl(slide.link || ''));
+                  }}
                 >
                   {slideContent}
                 </a>
