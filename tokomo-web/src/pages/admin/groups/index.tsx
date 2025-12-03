@@ -47,6 +47,7 @@ const AdminGroupsPage: React.FC = () => {
   const [groupDetail, setGroupDetail] = useState<GroupDetail | null>(null);
   const [groupStats, setGroupStats] = useState<GroupStatistics | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   // Form states
   const [createName, setCreateName] = useState('');
@@ -267,11 +268,13 @@ const AdminGroupsPage: React.FC = () => {
     setShowStatsDialog(true);
     setStatsStartDate('');
     setStatsEndDate('');
+    setGroupStats(null); // 重置统计数据
 
     await fetchGroupStats(group.id);
   };
 
   const fetchGroupStats = async (groupId: number, startDate?: string, endDate?: string) => {
+    setStatsLoading(true);
     try {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams();
@@ -287,9 +290,17 @@ const AdminGroupsPage: React.FC = () => {
 
       if (response.ok) {
         setGroupStats(data.statistics);
+        toast.success('统计数据已更新');
+      } else {
+        const error = data.error || '获取统计数据失败';
+        toast.error(error);
+        throw new Error(error);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch group statistics:', error);
+      toast.error(error.message || '获取统计数据失败');
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -749,12 +760,20 @@ const AdminGroupsPage: React.FC = () => {
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={handleFilterStats}>筛选</Button>
+                <Button onClick={handleFilterStats} disabled={statsLoading}>
+                  {statsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  筛选
+                </Button>
               </div>
             </div>
 
             {/* Statistics summary */}
-            {groupStats && (
+            {statsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span className="ml-2">加载统计数据中...</span>
+              </div>
+            ) : groupStats ? (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <Card>
@@ -812,6 +831,15 @@ const AdminGroupsPage: React.FC = () => {
                   </div>
                 </div>
               </>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="text-muted-foreground text-lg">暂无统计数据</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    请设置筛选条件后点击筛选按钮
+                  </div>
+                </div>
+              </div>
             )}
           </div>
           <DialogFooter>
