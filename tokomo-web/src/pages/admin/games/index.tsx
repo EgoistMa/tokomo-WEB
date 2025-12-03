@@ -9,6 +9,7 @@ import { Plus, Pencil, Trash2, Search, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
+import * as XLSX from 'xlsx';
 import type { Game, GameListResponse, CreateGameRequest, UpdateGameRequest } from '@/lib/api-types';
 
 const AdminGamesPage: React.FC = () => {
@@ -115,7 +116,6 @@ const AdminGamesPage: React.FC = () => {
         }));
 
         // Create workbook and worksheet
-        const { default: XLSX } = await import('xlsx');
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, '游戏列表');
