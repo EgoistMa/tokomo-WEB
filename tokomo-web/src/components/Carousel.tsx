@@ -12,7 +12,7 @@ const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
   const [current, setCurrent] = useState(0);
 
   // 默认幻灯片（当没有从API获取到数据时使用）
-  const defaultSlides = [
+  const defaultSlides: ImageConfig[] = [
     {
       url: '',
       title: '欢迎来到 Tokomo',
@@ -45,33 +45,52 @@ const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
         className="flex transition-transform duration-500 ease-in-out h-full"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {displaySlides.map((slide, idx) => (
-          <div
-            key={idx}
-            className="w-full h-full flex-shrink-0 relative"
-          >
-            {slide.url ? (
-              <img
-                src={slide.url}
-                alt={slide.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700">
-                <h2 className="text-4xl md:text-6xl font-bold text-foreground/80 tracking-tighter">
-                  {slide.title}
-                </h2>
-              </div>
-            )}
-            {slide.url && slide.title && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tight">
-                  {slide.title}
-                </h2>
-              </div>
-            )}
-          </div>
-        ))}
+        {displaySlides.map((slide, idx) => {
+          const slideContent = (
+            <>
+              {slide.url ? (
+                <img
+                  src={slide.url}
+                  alt={slide.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700">
+                  <h2 className="text-4xl md:text-6xl font-bold text-foreground/80 tracking-tighter">
+                    {slide.title}
+                  </h2>
+                </div>
+              )}
+              {slide.url && slide.title && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+                  <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tight">
+                    {slide.title}
+                  </h2>
+                </div>
+              )}
+            </>
+          );
+
+          return (
+            <div
+              key={idx}
+              className="w-full h-full flex-shrink-0 relative"
+            >
+              {slide.link ? (
+                <a
+                  href={slide.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full h-full cursor-pointer hover:opacity-95 transition-opacity"
+                >
+                  {slideContent}
+                </a>
+              ) : (
+                slideContent
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Controls */}

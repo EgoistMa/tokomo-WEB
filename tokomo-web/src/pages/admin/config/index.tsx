@@ -95,7 +95,7 @@ const AdminConfigPage: React.FC = () => {
   };
 
   // Update carousel item
-  const updateCarouselItem = (index: number, field: 'url' | 'title', value: string) => {
+  const updateCarouselItem = (index: number, field: 'url' | 'title' | 'link', value: string) => {
     if (!config) return;
     const newCarousel = [...config.carousel];
     newCarousel[index] = { ...newCarousel[index], [field]: value };
@@ -107,7 +107,7 @@ const AdminConfigPage: React.FC = () => {
     if (!config) return;
     setConfig({
       ...config,
-      carousel: [...config.carousel, { url: '', title: '' }],
+      carousel: [...config.carousel, { url: '', title: '', link: '' }],
     });
   };
 
@@ -198,6 +198,14 @@ const AdminConfigPage: React.FC = () => {
                           placeholder="图片标题"
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label>跳转链接 (可选)</Label>
+                        <Input
+                          value={item.link || ''}
+                          onChange={(e) => updateCarouselItem(index, 'link', e.target.value)}
+                          placeholder="https://example.com (留空则不跳转)"
+                        />
+                      </div>
                     </div>
                     {item.url && (
                       <img
@@ -251,6 +259,14 @@ const AdminConfigPage: React.FC = () => {
                     placeholder="横幅标题"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>跳转链接 (可选)</Label>
+                  <Input
+                    value={config.bannerL.link || ''}
+                    onChange={(e) => setConfig({ ...config, bannerL: { ...config.bannerL, link: e.target.value } })}
+                    placeholder="https://example.com (留空则不跳转)"
+                  />
+                </div>
               </div>
               {config.bannerL.url && (
                 <img
@@ -289,6 +305,14 @@ const AdminConfigPage: React.FC = () => {
                     value={config.bannerR.title}
                     onChange={(e) => setConfig({ ...config, bannerR: { ...config.bannerR, title: e.target.value } })}
                     placeholder="横幅标题"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>跳转链接 (可选)</Label>
+                  <Input
+                    value={config.bannerR.link || ''}
+                    onChange={(e) => setConfig({ ...config, bannerR: { ...config.bannerR, link: e.target.value } })}
+                    placeholder="https://example.com (留空则不跳转)"
                   />
                 </div>
               </div>

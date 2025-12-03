@@ -92,6 +92,7 @@ export interface UpdateGameRequest {
 export interface ImageConfig {
   url: string;
   title: string;
+  link?: string;
 }
 
 export interface CustomerServiceConfig {

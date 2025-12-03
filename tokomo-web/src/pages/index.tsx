@@ -60,14 +60,28 @@ const HomePage: React.FC = () => {
           {/* Left Banner */}
           <div className="hidden lg:block w-[150px] flex-shrink-0">
             {config?.bannerL.url ? (
-              <a href="#" className="block h-full">
+              config.bannerL.link ? (
+                <a 
+                  href={config.bannerL.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block h-full"
+                >
+                  <img
+                    src={config.bannerL.url}
+                    alt={config.bannerL.title}
+                    className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    title={config.bannerL.title}
+                  />
+                </a>
+              ) : (
                 <img
                   src={config.bannerL.url}
                   alt={config.bannerL.title}
-                  className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  className="w-full h-full object-cover rounded-lg shadow-sm"
                   title={config.bannerL.title}
                 />
-              </a>
+              )
             ) : (
               <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
                 <CardContent className="p-6">
@@ -126,14 +140,28 @@ const HomePage: React.FC = () => {
           {/* Right Banner */}
           <div className="hidden lg:block w-[150px] flex-shrink-0">
             {config?.bannerR.url ? (
-              <a href="#" className="block h-full">
+              config.bannerR.link ? (
+                <a 
+                  href={config.bannerR.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block h-full"
+                >
+                  <img
+                    src={config.bannerR.url}
+                    alt={config.bannerR.title}
+                    className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    title={config.bannerR.title}
+                  />
+                </a>
+              ) : (
                 <img
                   src={config.bannerR.url}
                   alt={config.bannerR.title}
-                  className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  className="w-full h-full object-cover rounded-lg shadow-sm"
                   title={config.bannerR.title}
                 />
-              </a>
+              )
             ) : (
               <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
                 <CardContent className="p-6">
