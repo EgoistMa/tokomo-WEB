@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { LoginResponse, RegisterResponse } from '@/lib/api-types';
 import { toast } from 'sonner';
@@ -196,11 +196,22 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 p-4 dark:bg-zinc-900/50">
       <Card className="w-full max-w-md shadow-lg animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            {authMode === 'login' && '登录'}
-            {authMode === 'register' && '创建账户'}
-            {authMode === 'reset' && '重置密码'}
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold tracking-tight">
+              {authMode === 'login' && '登录'}
+              {authMode === 'register' && '创建账户'}
+              {authMode === 'reset' && '重置密码'}
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="gap-2"
+            >
+              <Home className="h-4 w-4" />
+              返回主页
+            </Button>
+          </div>
           <CardDescription>
             {authMode === 'login' && '输入您的凭据以访问您的账户'}
             {authMode === 'register' && '填写信息开始使用'}

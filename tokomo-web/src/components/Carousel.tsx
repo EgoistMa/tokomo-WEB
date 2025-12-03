@@ -2,55 +2,74 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
+import type { ImageConfig } from '@/lib/api-types';
 
-const SLIDES = [
-  {
-    id: 1,
-    color: 'bg-zinc-100 dark:bg-zinc-800',
-    content: '欢迎来到 Tokomo',
-  },
-  {
-    id: 2,
-    color: 'bg-zinc-200 dark:bg-zinc-700',
-    content: '探索无限可能',
-  },
-  {
-    id: 3,
-    color: 'bg-zinc-300 dark:bg-zinc-600',
-    content: '连接你我他',
-  },
-];
+interface CarouselProps {
+  slides?: ImageConfig[];
+}
 
-const Carousel: React.FC = () => {
+const Carousel: React.FC<CarouselProps> = ({ slides = [] }) => {
   const [current, setCurrent] = useState(0);
+
+  // 默认幻灯片（当没有从API获取到数据时使用）
+  const defaultSlides = [
+    {
+      url: '',
+      title: '欢迎来到 Tokomo',
+    },
+    {
+      url: '',
+      title: '探索无限可能',
+    },
+    {
+      url: '',
+      title: '连接你我他',
+    },
+  ];
+
+  const displaySlides = slides.length > 0 ? slides : defaultSlides;
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % SLIDES.length);
+      setCurrent((prev) => (prev + 1) % displaySlides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [displaySlides.length]);
 
-  const next = () => setCurrent((prev) => (prev + 1) % SLIDES.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+  const next = () => setCurrent((prev) => (prev + 1) % displaySlides.length);
+  const prev = () => setCurrent((prev) => (prev - 1 + displaySlides.length) % displaySlides.length);
 
   return (
     <div className="relative w-full h-[400px] overflow-hidden group">
-      <div 
+      <div
         className="flex transition-transform duration-500 ease-in-out h-full"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {SLIDES.map((slide) => (
-          <div 
-            key={slide.id}
-            className={cn(
-              "w-full h-full flex-shrink-0 flex items-center justify-center",
-              slide.color
-            )}
+        {displaySlides.map((slide, idx) => (
+          <div
+            key={idx}
+            className="w-full h-full flex-shrink-0 relative"
           >
-            <h2 className="text-4xl md:text-6xl font-bold text-foreground/80 tracking-tighter">
-              {slide.content}
-            </h2>
+            {slide.url ? (
+              <img
+                src={slide.url}
+                alt={slide.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700">
+                <h2 className="text-4xl md:text-6xl font-bold text-foreground/80 tracking-tighter">
+                  {slide.title}
+                </h2>
+              </div>
+            )}
+            {slide.url && slide.title && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+                <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tight">
+                  {slide.title}
+                </h2>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -67,7 +86,7 @@ const Carousel: React.FC = () => {
 
       {/* Indicators */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        {SLIDES.map((_, idx) => (
+        {displaySlides.map((_, idx) => (
           <button
             key={idx}
             className={cn(

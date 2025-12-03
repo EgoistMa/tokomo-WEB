@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
@@ -18,10 +18,17 @@ const AdminGamesPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [gameTypeFilter, setGameTypeFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalGames, setTotalGames] = useState(0);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [showImportResult, setShowImportResult] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -44,13 +51,14 @@ const AdminGamesPage: React.FC = () => {
   }, [user, loading, navigate]);
 
   // Fetch games
-  const fetchGames = async (page = 1, search = '') => {
+  const fetchGames = async (page = 1, search = '', gameType = '') => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10',
         ...(search && { search }),
+        ...(gameType && { gameType }),
       });
 
       const response = await fetch(`${API_BASE_URL}/game/list?${params}`);
@@ -60,6 +68,7 @@ const AdminGamesPage: React.FC = () => {
         setGames(data.games);
         setCurrentPage(data.pagination.page);
         setTotalPages(data.pagination.totalPages);
+        setTotalGames(data.pagination.total);
       } else {
         throw new Error('获取游戏列表失败');
       }
@@ -71,14 +80,61 @@ const AdminGamesPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchGames(currentPage, searchQuery);
+    fetchGames(currentPage, searchQuery, gameTypeFilter);
   }, []);
 
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchGames(1, searchQuery);
+    fetchGames(1, searchQuery, gameTypeFilter);
+  };
+
+  // Handle import
+  const handleImportGames = async () => {
+    if (!importFile) {
+      toast.error('请选择要导入的文件');
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', importFile);
+
+      const response = await fetch(`${API_BASE_URL}/game/import`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setImportResult(data);
+        setShowImportResult(true);
+        toast.success(`导入完成！新增: ${data.summary.created}, 更新: ${data.summary.updated}, 失败: ${data.summary.failed}`);
+        setIsImportDialogOpen(false);
+        setImportFile(null);
+        fetchGames(currentPage, searchQuery, gameTypeFilter);
+      } else {
+        throw new Error(data.error || '导入失败');
+      }
+    } catch (error: any) {
+      toast.error(error.message || '导入失败', {
+        style: {
+          background: '#fee2e2',
+          border: '1px solid #ef4444',
+          color: '#991b1b',
+        },
+        duration: 4000,
+      });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   // Create game
@@ -226,28 +282,64 @@ const AdminGamesPage: React.FC = () => {
 
   if (loading && games.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div>
         <p>加载中...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl">游戏管理</CardTitle>
-              <CardDescription>管理所有游戏资源</CardDescription>
+              <CardDescription>管理所有游戏资源 (共 {totalGames} 个游戏)</CardDescription>
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={resetForm}>
-                  <Plus className="mr-2 h-4 w-4" /> 添加游戏
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+            <div className="flex gap-2">
+              <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Upload className="mr-2 h-4 w-4" /> 批量导入
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>批量导入游戏</DialogTitle>
+                    <DialogDescription>
+                      上传 Excel 文件 (.xlsx 或 .xls) 批量导入游戏数据
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="import-file">选择文件</Label>
+                      <Input
+                        id="import-file"
+                        type="file"
+                        accept=".xlsx,.xls"
+                        onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        文件格式：编号 | 类型 | 游戏名 | 百度盘 | 提取码 | 解压码
+                      </p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleImportGames} disabled={!importFile || isImporting}>
+                      {isImporting ? '导入中...' : '开始导入'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={resetForm}>
+                    <Plus className="mr-2 h-4 w-4" /> 添加游戏
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
                 <form onSubmit={handleCreateGame}>
                   <DialogHeader>
                     <DialogTitle>添加新游戏</DialogTitle>
@@ -312,13 +404,14 @@ const AdminGamesPage: React.FC = () => {
                     <Button type="submit">创建</Button>
                   </DialogFooter>
                 </form>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="mb-6">
+          {/* Search and Filter Bar */}
+          <form onSubmit={handleSearch} className="mb-6 space-y-4">
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -329,7 +422,24 @@ const AdminGamesPage: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <Input
+                placeholder="游戏类型 (如: ACT, RPG)"
+                className="w-48"
+                value={gameTypeFilter}
+                onChange={(e) => setGameTypeFilter(e.target.value)}
+              />
               <Button type="submit">搜索</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setSearchQuery('');
+                  setGameTypeFilter('');
+                  fetchGames(1, '', '');
+                }}
+              >
+                重置
+              </Button>
             </div>
           </form>
 
@@ -339,6 +449,7 @@ const AdminGamesPage: React.FC = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
+                  <TableHead>UUID</TableHead>
                   <TableHead>游戏名称</TableHead>
                   <TableHead>类型</TableHead>
                   <TableHead>下载链接</TableHead>
@@ -349,14 +460,17 @@ const AdminGamesPage: React.FC = () => {
               <TableBody>
                 {games.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                       暂无游戏数据
                     </TableCell>
                   </TableRow>
                 ) : (
                   games.map((game) => (
-                    <TableRow key={game.id}>
+                    <TableRow key={game.uuid}>
                       <TableCell>{game.id}</TableCell>
+                      <TableCell className="font-mono text-xs max-w-[100px] truncate" title={game.uuid}>
+                        {game.uuid.split('-')[0]}...
+                      </TableCell>
                       <TableCell className="font-medium">{game.game_name}</TableCell>
                       <TableCell>{game.game_type || '-'}</TableCell>
                       <TableCell className="max-w-xs truncate">
@@ -400,7 +514,7 @@ const AdminGamesPage: React.FC = () => {
             <div className="flex justify-center gap-2 mt-4">
               <Button
                 variant="outline"
-                onClick={() => fetchGames(currentPage - 1, searchQuery)}
+                onClick={() => fetchGames(currentPage - 1, searchQuery, gameTypeFilter)}
                 disabled={currentPage === 1}
               >
                 上一页
@@ -410,7 +524,7 @@ const AdminGamesPage: React.FC = () => {
               </span>
               <Button
                 variant="outline"
-                onClick={() => fetchGames(currentPage + 1, searchQuery)}
+                onClick={() => fetchGames(currentPage + 1, searchQuery, gameTypeFilter)}
                 disabled={currentPage === totalPages}
               >
                 下一页
@@ -485,6 +599,126 @@ const AdminGamesPage: React.FC = () => {
               <Button type="submit">更新</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Result Dialog */}
+      <Dialog open={showImportResult} onOpenChange={setShowImportResult}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>导入结果</DialogTitle>
+            <DialogDescription>
+              查看详细的导入统计和记录
+            </DialogDescription>
+          </DialogHeader>
+          {importResult && (
+            <div className="space-y-6">
+              {/* Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">导入摘要</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-4 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-blue-600">{importResult.summary.total}</div>
+                      <div className="text-sm text-muted-foreground">总计</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">{importResult.summary.created}</div>
+                      <div className="text-sm text-muted-foreground">新增</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-yellow-600">{importResult.summary.updated}</div>
+                      <div className="text-sm text-muted-foreground">更新</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-red-600">{importResult.summary.failed}</div>
+                      <div className="text-sm text-muted-foreground">失败</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Updated Records */}
+              {importResult.updatedRecords && importResult.updatedRecords.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">更新的游戏 ({importResult.updatedRecords.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="max-h-64 overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>UUID</TableHead>
+                            <TableHead>游戏名</TableHead>
+                            <TableHead>类型</TableHead>
+                            <TableHead>提取码</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {importResult.updatedRecords.slice(0, 50).map((record: any, index: number) => (
+                            <TableRow key={record.uuid || index}>
+                              <TableCell>{record.id}</TableCell>
+                              <TableCell className="font-mono text-xs max-w-[120px] truncate" title={record.uuid}>
+                                {record.uuid ? record.uuid.split('-')[0] + '...' : '-'}
+                              </TableCell>
+                              <TableCell className="font-medium">{record.gameName}</TableCell>
+                              <TableCell>{record.gameType || '-'}</TableCell>
+                              <TableCell>{record.extractPassword || '-'}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                      {importResult.updatedRecords.length > 50 && (
+                        <p className="text-sm text-muted-foreground mt-2 text-center">
+                          仅显示前 50 条，共 {importResult.updatedRecords.length} 条记录
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Failed Records */}
+              {importResult.failedRecords && importResult.failedRecords.length > 0 && (
+                <Card className="border-red-200">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-red-600">失败的记录 ({importResult.failedRecords.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="max-h-64 overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>游戏名</TableHead>
+                            <TableHead>类型</TableHead>
+                            <TableHead>UUID</TableHead>
+                            <TableHead>原因</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {importResult.failedRecords.map((record: any, index: number) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">{record.gameName}</TableCell>
+                              <TableCell>{record.gameType || '-'}</TableCell>
+                              <TableCell className="font-mono text-xs">{record.uuid || '-'}</TableCell>
+                              <TableCell className="text-red-600 text-sm">{record.reason}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setShowImportResult(false)}>关闭</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

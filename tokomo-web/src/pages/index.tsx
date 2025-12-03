@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Carousel from '@/components/Carousel';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Search, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import type { SiteConfig } from '@/lib/api-types';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [config, setConfig] = useState<SiteConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showCustomerService, setShowCustomerService] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+  // Fetch site config
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/site/config`);
+        const data = await response.json();
+        if (response.ok) {
+          setConfig(data.config);
+        }
+      } catch (error) {
+        console.error('Failed to fetch site config:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfig();
+  }, [API_BASE_URL]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,19 +51,30 @@ const HomePage: React.FC = () => {
   return (
     <>
       {/* Hero Section */}
-      <Carousel />
+      <Carousel slides={config?.carousel} />
 
       {/* Main Content Area */}
       <div className="container mx-auto px-4 py-12 h-[800px]">
         <div className="flex flex-col lg:flex-row gap-8 h-full">
-          
+
           {/* Left Banner */}
           <div className="hidden lg:block w-[150px] flex-shrink-0">
-            <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
-              <CardContent className="p-6">
-                <span className="text-muted-foreground font-medium">广告位 / Banner</span>
-              </CardContent>
-            </Card>
+            {config?.bannerL.url ? (
+              <a href="#" className="block h-full">
+                <img
+                  src={config.bannerL.url}
+                  alt={config.bannerL.title}
+                  className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  title={config.bannerL.title}
+                />
+              </a>
+            ) : (
+              <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
+                <CardContent className="p-6">
+                  <span className="text-muted-foreground font-medium text-center">广告位 / Banner</span>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Center Search Area */}
@@ -57,7 +95,7 @@ const HomePage: React.FC = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button type="submit">搜索</Button>
+                <Button type="submit">许愿</Button>
               </form>
 
               {/* Popular Tags or Secondary Actions can go here */}
@@ -87,15 +125,81 @@ const HomePage: React.FC = () => {
 
           {/* Right Banner */}
           <div className="hidden lg:block w-[150px] flex-shrink-0">
-            <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
-              <CardContent className="p-6">
-                <span className="text-muted-foreground font-medium">广告位 / Banner</span>
-              </CardContent>
-            </Card>
+            {config?.bannerR.url ? (
+              <a href="#" className="block h-full">
+                <img
+                  src={config.bannerR.url}
+                  alt={config.bannerR.title}
+                  className="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  title={config.bannerR.title}
+                />
+              </a>
+            ) : (
+              <Card className="h-full bg-muted/50 flex items-center justify-center border-dashed">
+                <CardContent className="p-6">
+                  <span className="text-muted-foreground font-medium text-center">广告位 / Banner</span>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
         </div>
       </div>
+
+      {/* Floating Customer Service Button */}
+      <Button
+        className="fixed bottom-8 right-8 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        size="icon"
+        onClick={() => setShowCustomerService(true)}
+      >
+        <MessageCircle className="h-6 w-6" />
+      </Button>
+
+      {/* Customer Service Dialog */}
+      <Dialog open={showCustomerService} onOpenChange={setShowCustomerService}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>联系客服</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {config?.customerService.img && (
+              <div className="flex justify-center">
+                <img
+                  src={config.customerService.img}
+                  alt="客服二维码"
+                  className="w-48 h-48 object-contain rounded border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            {config?.customerService.qq && (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">客服 QQ</p>
+                <div className="flex items-center justify-center gap-2">
+                  <p className="text-2xl font-bold">{config.customerService.qq}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(config.customerService.qq);
+                      toast.success('QQ号已复制到剪贴板');
+                    }}
+                  >
+                    复制
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!config?.customerService.img && !config?.customerService.qq && (
+              <p className="text-center text-muted-foreground py-8">
+                暂无客服信息
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

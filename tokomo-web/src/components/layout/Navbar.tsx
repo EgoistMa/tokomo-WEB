@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Library, Settings } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -28,9 +28,9 @@ const Navbar: React.FC = () => {
         {/* Right Side Actions */}
         <div className="flex items-center gap-4">
           {!loading && user ? (
-            <HoverCard>
+            <HoverCard openDelay={0} closeDelay={100}>
               <HoverCardTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-auto px-4" onClick={() => navigate('/profile')}>
+                <Button variant="ghost" className="relative h-10 w-auto px-4">
                   <span className="font-medium">{user.username}</span>
                 </Button>
               </HoverCardTrigger>
@@ -41,10 +41,20 @@ const Navbar: React.FC = () => {
                     <p className="text-sm" style={{ color: 'black !important' }}>
                       当前积分: <span className="font-bold text-primary">{user.points || 0}</span>
                     </p>
-                    <div className="flex items-center pt-2 gap-2">
-                        <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/profile')}>
-                            <UserIcon className="mr-2 h-4 w-4" /> 个人中心
-                        </Button>
+                    <div className="flex flex-col items-center pt-2 gap-2">
+                        <div className="flex items-center gap-2 w-full">
+                            <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate('/profile')}>
+                                <UserIcon className="mr-2 h-4 w-4" /> 个人中心
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1" onClick={() => navigate('/library')}>
+                                <Library className="mr-2 h-4 w-4" /> 游戏库
+                            </Button>
+                        </div>
+                        {(user as any)?.is_admin && (
+                          <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/admin')}>
+                              <Settings className="mr-2 h-4 w-4" /> 管理后台
+                          </Button>
+                        )}
                         <Button variant="destructive" size="sm" className="w-full" onClick={handleLogout}>
                             <LogOut className="mr-2 h-4 w-4" /> 退出
                         </Button>
