@@ -6,6 +6,7 @@ import AuthPage from './pages/auth/index';
 import ProfilePage from './pages/profile/index';
 import SearchResultsPage from './pages/search/index';
 import LibraryPage from './pages/library/index';
+import GameDetailPage from './pages/game/detail';
 import AdminDashboardPage from './pages/admin/index';
 import AdminUsersPage from './pages/admin/users/index';
 import AdminGamesPage from './pages/admin/games/index';
@@ -26,6 +27,7 @@ function App() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="search" element={<SearchResultsPage />} />
             <Route path="library" element={<LibraryPage />} />
+            <Route path="game/:id" element={<GameDetailPage />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />

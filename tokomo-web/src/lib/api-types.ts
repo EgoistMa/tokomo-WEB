@@ -57,6 +57,31 @@ export interface Game {
   note?: string | null;
   password?: string | null;
   created_at: string;
+  price?: number;
+}
+
+export interface GameWithAccess extends Game {
+  canViewDownload: boolean;
+  accessReason: 'vip' | 'purchased' | 'need_purchase_or_vip';
+  isPurchased: boolean;
+}
+
+export interface GameDetailResponse {
+  game: GameWithAccess;
+}
+
+export interface GameListWithAccessResponse {
+  games: GameWithAccess[];
+  userStatus: {
+    isVip: boolean;
+    vipExpireDate: string | null;
+  };
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface GameListResponse {
@@ -77,6 +102,7 @@ export interface CreateGameRequest {
   extractPassword?: string;
   password?: string;
   note?: string;
+  price?: number;
 }
 
 export interface UpdateGameRequest {
@@ -86,6 +112,7 @@ export interface UpdateGameRequest {
   extractPassword?: string;
   password?: string;
   note?: string;
+  price?: number;
 }
 
 // Site Config Types

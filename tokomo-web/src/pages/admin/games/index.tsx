@@ -41,6 +41,7 @@ const AdminGamesPage: React.FC = () => {
     extractPassword: '',
     password: '',
     note: '',
+    price: 0,
   });
 
   // Check if user is admin
@@ -231,6 +232,7 @@ const AdminGamesPage: React.FC = () => {
         extractPassword: formData.extractPassword,
         password: formData.password,
         note: formData.note,
+        price: formData.price,
       };
 
       const response = await fetch(`${API_BASE_URL}/game/${editingGame.id}`, {
@@ -308,6 +310,7 @@ const AdminGamesPage: React.FC = () => {
       extractPassword: game.extract_password || '',
       password: game.password || '',
       note: game.note || '',
+      price: game.price || 0,
     });
     setIsEditDialogOpen(true);
   };
@@ -321,6 +324,7 @@ const AdminGamesPage: React.FC = () => {
       extractPassword: '',
       password: '',
       note: '',
+      price: 0,
     });
   };
 
@@ -422,6 +426,18 @@ const AdminGamesPage: React.FC = () => {
                       />
                     </div>
                     <div className="grid gap-2">
+                      <Label htmlFor="price">积分价格 *</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                        placeholder="例如: 100"
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
                       <Label htmlFor="extractPassword">解压密码</Label>
                       <Input
                         id="extractPassword"
@@ -499,6 +515,7 @@ const AdminGamesPage: React.FC = () => {
                   <TableHead>UUID</TableHead>
                   <TableHead>游戏名称</TableHead>
                   <TableHead>类型</TableHead>
+                  <TableHead>价格</TableHead>
                   <TableHead>下载链接</TableHead>
                   <TableHead>创建时间</TableHead>
                   <TableHead className="text-right">操作</TableHead>
@@ -507,7 +524,7 @@ const AdminGamesPage: React.FC = () => {
               <TableBody>
                 {games.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground">
                       暂无游戏数据
                     </TableCell>
                   </TableRow>
@@ -520,6 +537,7 @@ const AdminGamesPage: React.FC = () => {
                       </TableCell>
                       <TableCell className="font-medium">{game.game_name}</TableCell>
                       <TableCell>{game.game_type || '-'}</TableCell>
+                      <TableCell className="font-semibold">{game.price || 0} 积分</TableCell>
                       <TableCell className="max-w-xs truncate">
                         <a
                           href={game.download_url}
@@ -615,6 +633,17 @@ const AdminGamesPage: React.FC = () => {
                   id="edit-gameType"
                   value={formData.gameType}
                   onChange={(e) => setFormData({ ...formData, gameType: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-price">积分价格 *</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                  required
                 />
               </div>
               <div className="grid gap-2">
