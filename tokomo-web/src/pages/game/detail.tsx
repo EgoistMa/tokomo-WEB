@@ -316,7 +316,7 @@ const GameDetailPage: React.FC = () => {
                     </Button>
                     <Button 
                       variant="outline"
-                      onClick={() => navigate('/vip')}
+                      onClick={() => navigate('/profile')}
                     >
                       <Crown className="mr-2 h-4 w-4" />
                       开通VIP
