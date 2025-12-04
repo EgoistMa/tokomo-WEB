@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Download, Lock, Copy, ShoppingCart, Crown } from 'lucide-react';
+import { Loader2, Lock, Copy, ShoppingCart, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
 import type { GameWithAccess } from '@/lib/api-types';

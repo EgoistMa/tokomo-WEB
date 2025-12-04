@@ -301,18 +301,47 @@ const AdminGamesPage: React.FC = () => {
   };
 
   // Open edit dialog
-  const openEditDialog = (game: Game) => {
-    setEditingGame(game);
-    setFormData({
-      gameName: game.game_name,
-      downloadUrl: game.download_url,
-      gameType: game.game_type || '',
-      extractPassword: game.extract_password || '',
-      password: game.password || '',
-      note: game.note || '',
-      price: game.price || 0,
-    });
-    setIsEditDialogOpen(true);
+  const openEditDialog = async (game: Game) => {
+    try {
+      console.log('Opening edit dialog for game:', game); // 调试日志
+      
+      // 使用管理员API获取完整的游戏数据
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/game/${game.id}/admin`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const fullGame = data.game;
+        
+        setEditingGame(fullGame);
+        setFormData({
+          gameName: fullGame.game_name || '',
+          downloadUrl: fullGame.download_url || '',
+          gameType: fullGame.game_type || '',
+          extractPassword: fullGame.extract_password || '',
+          password: fullGame.password || '',
+          note: fullGame.note || '',
+          price: fullGame.price || 0,
+        });
+        setIsEditDialogOpen(true);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '获取游戏详情失败');
+      }
+    } catch (error: any) {
+      toast.error(error.message || '获取游戏详情失败', {
+        style: {
+          background: '#fee2e2',
+          border: '1px solid #ef4444',
+          color: '#991b1b',
+        },
+        duration: 4000,
+      });
+    }
   };
 
   // Reset form
@@ -650,7 +679,7 @@ const AdminGamesPage: React.FC = () => {
                 <Label htmlFor="edit-extractPassword">解压密码</Label>
                 <Input
                   id="edit-extractPassword"
-                  value={formData.extractPassword}
+                  value={formData.extractPassword || ''}
                   onChange={(e) => setFormData({ ...formData, extractPassword: e.target.value })}
                 />
               </div>
@@ -658,7 +687,7 @@ const AdminGamesPage: React.FC = () => {
                 <Label htmlFor="edit-password">游戏密码</Label>
                 <Input
                   id="edit-password"
-                  value={formData.password}
+                  value={formData.password || ''}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
               </div>
@@ -666,7 +695,7 @@ const AdminGamesPage: React.FC = () => {
                 <Label htmlFor="edit-note">备注</Label>
                 <Input
                   id="edit-note"
-                  value={formData.note}
+                  value={formData.note || ''}
                   onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                 />
               </div>

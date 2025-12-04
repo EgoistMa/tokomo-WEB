@@ -62,7 +62,7 @@ const SearchResultsPage: React.FC = () => {
           setTotalResults(data.pagination.total);
           setUserStatus(data.userStatus);
         } else {
-          throw new Error(data.error || '搜索失败');
+          throw new Error('搜索失败');
         }
       } catch (error: any) {
         toast.error(error.message || '搜索失败');
