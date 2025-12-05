@@ -247,13 +247,13 @@ const GameDetailPage: React.FC = () => {
                 {/* Extract Password */}
                 {game.extract_password && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">解压密码:</p>
+                    <p className="text-sm font-medium">解压码:</p>
                     <div className="flex items-center gap-2">
                       <code className="bg-muted px-2 py-1 rounded">{game.extract_password}</code>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(game.extract_password!, '解压密码')}
+                        onClick={() => copyToClipboard(game.extract_password!, '解压码')}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
