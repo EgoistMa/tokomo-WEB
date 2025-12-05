@@ -686,7 +686,7 @@ const AdminGamesPage: React.FC = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-extractPassword">解压密码</Label>
+                <Label htmlFor="edit-extractPassword">提取码</Label>
                 <Input
                   id="edit-extractPassword"
                   value={formData.extractPassword || ''}
@@ -694,7 +694,7 @@ const AdminGamesPage: React.FC = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-password">游戏密码</Label>
+                <Label htmlFor="edit-password">解压码</Label>
                 <Input
                   id="edit-password"
                   value={formData.password || ''}
