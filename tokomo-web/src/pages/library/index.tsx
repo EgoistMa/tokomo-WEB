@@ -167,10 +167,10 @@ const LibraryPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Extract Password */}
+                    {/* Extract Password (Baidu Pan) */}
                     {game.extract_password && (
                       <div className="space-y-1">
-                        <label className="text-sm font-medium">解压密码:</label>
+                        <label className="text-sm font-medium">提取码:</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -181,7 +181,7 @@ const LibraryPage: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => copyToClipboard(game.extract_password!, '解压密码')}
+                            onClick={() => copyToClipboard(game.extract_password!, '提取码')}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -189,10 +189,10 @@ const LibraryPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Password */}
+                    {/* Password (Game File) */}
                     {game.password && (
                       <div className="space-y-1">
-                        <label className="text-sm font-medium">游戏密码:</label>
+                        <label className="text-sm font-medium">解压码:</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -203,7 +203,7 @@ const LibraryPage: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => copyToClipboard(game.password!, '游戏密码')}
+                            onClick={() => copyToClipboard(game.password!, '解压码')}
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
