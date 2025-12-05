@@ -227,16 +227,16 @@ const GameDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Password */}
-                {game.password && (
+                {/* Extract Password (Baidu Pan) */}
+                {game.extract_password && (
                   <div className="space-y-2 mb-4">
                     <p className="text-sm font-medium">提取码:</p>
                     <div className="flex items-center gap-2">
-                      <code className="bg-muted px-2 py-1 rounded">{game.password}</code>
+                      <code className="bg-muted px-2 py-1 rounded">{game.extract_password}</code>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(game.password!, '提取码')}
+                        onClick={() => copyToClipboard(game.extract_password!, '提取码')}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -244,16 +244,16 @@ const GameDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Extract Password */}
-                {game.extract_password && (
+                {/* Password (Game File) */}
+                {game.password && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">解压码:</p>
                     <div className="flex items-center gap-2">
-                      <code className="bg-muted px-2 py-1 rounded">{game.extract_password}</code>
+                      <code className="bg-muted px-2 py-1 rounded">{game.password}</code>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(game.extract_password!, '解压码')}
+                        onClick={() => copyToClipboard(game.password!, '解压码')}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
