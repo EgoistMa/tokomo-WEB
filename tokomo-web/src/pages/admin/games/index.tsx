@@ -102,13 +102,10 @@ const AdminGamesPage: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
 
-      // Fetch all games with admin API
-      const params = new URLSearchParams({
-        page: '1',
-        limit: '10000', // Get all games
-      });
+      toast.info('正在获取游戏数据...');
 
-      const response = await fetch(`${API_BASE_URL}/game/list/admin?${params}`, {
+      // Fetch all games with admin API (returns all games without pagination)
+      const response = await fetch(`${API_BASE_URL}/game/list/admin`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -117,6 +114,11 @@ const AdminGamesPage: React.FC = () => {
 
       if (!response.ok) {
         throw new Error('获取游戏列表失败');
+      }
+
+      if (!data.games || data.games.length === 0) {
+        toast.warning('没有游戏数据可以导出');
+        return;
       }
 
       // Convert games data to Excel format
