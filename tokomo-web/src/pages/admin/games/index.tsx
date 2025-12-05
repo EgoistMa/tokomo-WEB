@@ -56,6 +56,7 @@ const AdminGamesPage: React.FC = () => {
   const fetchGames = async (page = 1, search = '', gameType = '') => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10',
@@ -63,7 +64,11 @@ const AdminGamesPage: React.FC = () => {
         ...(gameType && { gameType }),
       });
 
-      const response = await fetch(`${API_BASE_URL}/game/list?${params}`);
+      const response = await fetch(`${API_BASE_URL}/game/list/admin?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       const data: GameListResponse = await response.json();
 
       if (response.ok) {
@@ -95,41 +100,48 @@ const AdminGamesPage: React.FC = () => {
   // Handle export
   const handleExportGames = async () => {
     try {
-      // Fetch all games for export
+      const token = localStorage.getItem('token');
+
+      // Fetch all games with admin API
       const params = new URLSearchParams({
         page: '1',
         limit: '10000', // Get all games
       });
 
-      const response = await fetch(`${API_BASE_URL}/game/list?${params}`);
+      const response = await fetch(`${API_BASE_URL}/game/list/admin?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       const data: GameListResponse = await response.json();
 
-      if (response.ok) {
-        // Convert games data to Excel format
-        const exportData = data.games.map((game, index) => ({
-          '编号': index + 1,
-          '类型': game.game_type || '',
-          '游戏名': game.game_name,
-          '百度盘': game.download_url,
-          '提取码': game.password || '',
-          '解压码': game.extract_password || '',
-          'UUID': game.uuid,
-        }));
-
-        // Create workbook and worksheet
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, '游戏列表');
-
-        // Generate file name with current date
-        const fileName = `游戏列表_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
-        
-        // Write file
-        XLSX.writeFile(wb, fileName);
-        toast.success(`成功导出 ${data.games.length} 个游戏`);
-      } else {
-        throw new Error('获取游戏数据失败');
+      if (!response.ok) {
+        throw new Error('获取游戏列表失败');
       }
+
+      // Convert games data to Excel format
+      const exportData = data.games.map((game, index) => ({
+        '编号': index + 1,
+        '类型': game.game_type || '',
+        '游戏名': game.game_name,
+        '百度盘': game.download_url || '',
+        '提取码': game.password || '',
+        '解压码': game.extract_password || '',
+        '积分价格': game.price || 0,
+        'UUID': game.uuid,
+      }));
+
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '游戏列表');
+
+      // Generate file name with current date
+      const fileName = `游戏列表_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(wb, fileName);
+      toast.success(`成功导出 ${data.games.length} 个游戏`);
     } catch (error: any) {
       toast.error(error.message || '导出失败');
     }
