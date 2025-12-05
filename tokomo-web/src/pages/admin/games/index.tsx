@@ -129,6 +129,7 @@ const AdminGamesPage: React.FC = () => {
         '百度盘': game.download_url || '',
         '提取码': game.password || '',
         '解压码': game.extract_password || '',
+        '备注': game.note || '',
         '积分价格': game.price || 0,
         'UUID': game.uuid,
       }));
