@@ -56,7 +56,6 @@ const AdminGamesPage: React.FC = () => {
   const fetchGames = async (page = 1, search = '', gameType = '') => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10',
@@ -64,11 +63,7 @@ const AdminGamesPage: React.FC = () => {
         ...(gameType && { gameType }),
       });
 
-      const response = await fetch(`${API_BASE_URL}/game/list/admin?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(`${API_BASE_URL}/game/list?${params}`);
       const data: GameListResponse = await response.json();
 
       if (response.ok) {
