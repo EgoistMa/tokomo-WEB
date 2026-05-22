@@ -7,6 +7,7 @@ import { Loader2, Lock, Copy, ShoppingCart, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
 import type { GameWithAccess } from '@/lib/api-types';
+import { QRCodeSVG } from 'qrcode.react';
 
 const GameDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -265,11 +266,9 @@ const GameDetailPage: React.FC = () => {
                 {game.download_qrcode && (
                   <div className="space-y-2 mt-4">
                     <p className="text-sm font-medium">下载二维码:</p>
-                    <img
-                      src={game.download_qrcode}
-                      alt="下载二维码"
-                      className="w-40 h-40 object-contain border rounded"
-                    />
+                    <div className="p-3 bg-white rounded inline-block">
+                      <QRCodeSVG value={game.download_qrcode} size={160} />
+                    </div>
                   </div>
                 )}
               </div>
