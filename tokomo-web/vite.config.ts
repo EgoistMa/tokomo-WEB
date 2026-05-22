@@ -14,4 +14,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Fallback so builds without a .env file still point at the real backend
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+      process.env.VITE_API_BASE_URL ?? 'https://devapi.tokomoapp.org/api'
+    ),
+  },
 })
