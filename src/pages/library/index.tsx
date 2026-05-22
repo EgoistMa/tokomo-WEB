@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Loader2, ExternalLink, Copy } from 'lucide-react';
+import { Download, Loader2, Copy } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
 import type { PurchasedGame } from '@/lib/api-types';
@@ -141,55 +141,6 @@ const LibraryPage: React.FC = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {/* Download URL */}
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">下载链接:</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={game.download_url}
-                          readOnly
-                          className="flex-1 px-3 py-2 text-sm bg-muted rounded-md"
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(game.download_url, '下载链接')}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(game.download_url, '_blank')}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Extract Password (Baidu Pan) */}
-                    {game.extract_password && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium">提取码:</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={game.extract_password}
-                            readOnly
-                            className="flex-1 px-3 py-2 text-sm bg-muted rounded-md"
-                          />
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyToClipboard(game.extract_password!, '提取码')}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Password (Game File) */}
                     {game.password && (
                       <div className="space-y-1">
@@ -213,18 +164,27 @@ const LibraryPage: React.FC = () => {
                     )}
 
                     {/* Download QR Code */}
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium">下载二维码:</label>
-                      {game.download_qrcode ? (
-                        <div className="p-3 bg-white rounded inline-block">
-                          <QRCodeSVG value={game.download_qrcode} size={160} />
+                    {(() => {
+                      const qrValue = game.download_url
+                        ? game.extract_password
+                          ? `${game.download_url}?pwd=${game.extract_password}`
+                          : game.download_url
+                        : null;
+                      return (
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium">下载二维码:</label>
+                          {qrValue ? (
+                            <div className="p-3 bg-white rounded inline-block">
+                              <QRCodeSVG value={qrValue} size={160} />
+                            </div>
+                          ) : (
+                            <div className="w-[184px] h-[184px] flex items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded text-sm text-muted-foreground">
+                              暂无
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="w-[184px] h-[184px] flex items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded text-sm text-muted-foreground">
-                          暂无
-                        </div>
-                      )}
-                    </div>
+                      );
+                    })()}
 
                     {/* Note */}
                     {game.note && (
