@@ -434,7 +434,7 @@ const AdminGamesPage: React.FC = () => {
                     <Plus className="mr-2 h-4 w-4" /> 添加游戏
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleCreateGame}>
                   <DialogHeader>
                     <DialogTitle>添加新游戏</DialogTitle>
@@ -655,7 +655,7 @@ const AdminGamesPage: React.FC = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleUpdateGame}>
             <DialogHeader>
               <DialogTitle>编辑游戏</DialogTitle>
