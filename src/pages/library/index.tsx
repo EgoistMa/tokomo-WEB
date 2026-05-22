@@ -7,6 +7,7 @@ import { Download, Loader2, ExternalLink, Copy } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
 import type { PurchasedGame } from '@/lib/api-types';
+import { QRCodeSVG } from 'qrcode.react';
 
 const LibraryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -212,16 +213,18 @@ const LibraryPage: React.FC = () => {
                     )}
 
                     {/* Download QR Code */}
-                    {game.download_qrcode && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium">下载二维码:</label>
-                        <img
-                          src={game.download_qrcode}
-                          alt="下载二维码"
-                          className="w-40 h-40 object-contain border rounded"
-                        />
-                      </div>
-                    )}
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium">下载二维码:</label>
+                      {game.download_qrcode ? (
+                        <div className="p-3 bg-white rounded inline-block">
+                          <QRCodeSVG value={game.download_qrcode} size={160} />
+                        </div>
+                      ) : (
+                        <div className="w-[184px] h-[184px] flex items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded text-sm text-muted-foreground">
+                          暂无
+                        </div>
+                      )}
+                    </div>
 
                     {/* Note */}
                     {game.note && (
