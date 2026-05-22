@@ -263,14 +263,18 @@ const GameDetailPage: React.FC = () => {
                 )}
 
                 {/* Download QR Code */}
-                {game.download_qrcode && (
-                  <div className="space-y-2 mt-4">
-                    <p className="text-sm font-medium">下载二维码:</p>
+                <div className="space-y-2 mt-4">
+                  <p className="text-sm font-medium">下载二维码:</p>
+                  {game.download_qrcode ? (
                     <div className="p-3 bg-white rounded inline-block">
                       <QRCodeSVG value={game.download_qrcode} size={160} />
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-[184px] h-[184px] flex items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded text-sm text-muted-foreground">
+                      暂无
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Purchase button for VIP users who haven't purchased */}
