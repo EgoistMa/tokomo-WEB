@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tokomo-web",
+  "compatibility_date": "2026-05-22",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "tokomo-web"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
