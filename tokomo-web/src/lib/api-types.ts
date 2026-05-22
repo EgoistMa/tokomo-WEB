@@ -56,6 +56,7 @@ export interface Game {
   game_type?: string | null;
   note?: string | null;
   password?: string | null;
+  download_qrcode?: string | null;
   created_at: string;
   price?: number;
 }
@@ -103,6 +104,7 @@ export interface CreateGameRequest {
   password?: string;
   note?: string;
   price?: number;
+  downloadQrcode?: string;
 }
 
 export interface UpdateGameRequest {
@@ -113,6 +115,7 @@ export interface UpdateGameRequest {
   password?: string;
   note?: string;
   price?: number;
+  downloadQrcode?: string;
 }
 
 // Site Config Types

@@ -42,6 +42,7 @@ const AdminGamesPage: React.FC = () => {
     password: '',
     note: '',
     price: 0,
+    downloadQrcode: '',
   });
 
   // Check if user is admin
@@ -124,6 +125,7 @@ const AdminGamesPage: React.FC = () => {
         '百度盘': game.download_url || '',
         '提取码': game.password || '',
         '解压码': game.extract_password || '',
+        '下载二维码': game.download_qrcode || '',
         '备注': game.note || '',
         '积分价格': game.price || 0,
         'UUID': game.uuid,
@@ -243,6 +245,7 @@ const AdminGamesPage: React.FC = () => {
         password: formData.password,
         note: formData.note,
         price: formData.price,
+        downloadQrcode: formData.downloadQrcode,
       };
 
       const response = await fetch(`${API_BASE_URL}/game/${editingGame.id}`, {
@@ -336,6 +339,7 @@ const AdminGamesPage: React.FC = () => {
           password: fullGame.password || '',
           note: fullGame.note || '',
           price: fullGame.price || 0,
+          downloadQrcode: fullGame.download_qrcode || '',
         });
         setIsEditDialogOpen(true);
       } else {
@@ -364,6 +368,7 @@ const AdminGamesPage: React.FC = () => {
       password: '',
       note: '',
       price: 0,
+      downloadQrcode: '',
     });
   };
 
@@ -411,7 +416,7 @@ const AdminGamesPage: React.FC = () => {
                         onChange={(e) => setImportFile(e.target.files?.[0] || null)}
                       />
                       <p className="text-sm text-muted-foreground">
-                        文件格式：编号 | 类型 | 游戏名 | 百度盘 | 提取码 | 解压码
+                        文件格式：编号 | 类型 | 游戏名 | 百度盘 | 提取码 | 解压码 | 下载二维码（可选）
                       </p>
                     </div>
                   </div>
@@ -499,6 +504,16 @@ const AdminGamesPage: React.FC = () => {
                         value={formData.note}
                         onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                         placeholder="游戏描述或说明"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="downloadQrcode">下载二维码 URL</Label>
+                      <Input
+                        id="downloadQrcode"
+                        type="url"
+                        value={formData.downloadQrcode}
+                        onChange={(e) => setFormData({ ...formData, downloadQrcode: e.target.value })}
+                        placeholder="https://example.com/qr.png"
                       />
                     </div>
                   </div>
@@ -707,6 +722,16 @@ const AdminGamesPage: React.FC = () => {
                   id="edit-note"
                   value={formData.note || ''}
                   onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-downloadQrcode">下载二维码 URL</Label>
+                <Input
+                  id="edit-downloadQrcode"
+                  type="url"
+                  value={formData.downloadQrcode || ''}
+                  onChange={(e) => setFormData({ ...formData, downloadQrcode: e.target.value })}
+                  placeholder="https://example.com/qr.png"
                 />
               </div>
             </div>

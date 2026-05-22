@@ -211,6 +211,18 @@ const LibraryPage: React.FC = () => {
                       </div>
                     )}
 
+                    {/* Download QR Code */}
+                    {game.download_qrcode && (
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">下载二维码:</label>
+                        <img
+                          src={game.download_qrcode}
+                          alt="下载二维码"
+                          className="w-40 h-40 object-contain border rounded"
+                        />
+                      </div>
+                    )}
+
                     {/* Note */}
                     {game.note && (
                       <div className="space-y-1">

@@ -260,6 +260,18 @@ const GameDetailPage: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Download QR Code */}
+                {game.download_qrcode && (
+                  <div className="space-y-2 mt-4">
+                    <p className="text-sm font-medium">下载二维码:</p>
+                    <img
+                      src={game.download_qrcode}
+                      alt="下载二维码"
+                      className="w-40 h-40 object-contain border rounded"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Purchase button for VIP users who haven't purchased */}
