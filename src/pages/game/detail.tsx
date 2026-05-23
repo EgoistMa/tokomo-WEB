@@ -7,7 +7,6 @@ import { Loader2, Lock, Copy, ShoppingCart, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
 import type { GameWithAccess } from '@/lib/api-types';
-import { QRCodeSVG } from 'qrcode.react';
 
 const GameDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -223,28 +222,22 @@ const GameDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Download QR Code */}
-                {(() => {
-                  const qrValue = game.download_url
-                    ? game.extract_password
-                      ? `${game.download_url}?pwd=${game.extract_password}`
-                      : game.download_url
-                    : null;
-                  return (
-                    <div className="space-y-2 mt-4">
-                      <p className="text-sm font-medium">下载二维码:</p>
-                      {qrValue ? (
-                        <div className="p-3 bg-white rounded inline-block">
-                          <QRCodeSVG value={qrValue} size={160} />
-                        </div>
-                      ) : (
-                        <div className="w-[184px] h-[184px] flex items-center justify-center border-2 border-dashed border-muted-foreground/30 rounded text-sm text-muted-foreground">
-                          暂无
-                        </div>
-                      )}
+                {/* Extract Password */}
+                {game.extract_password && (
+                  <div className="space-y-2 mt-4">
+                    <p className="text-sm font-medium">提取码:</p>
+                    <div className="flex items-center gap-2">
+                      <code className="bg-muted px-2 py-1 rounded">{game.extract_password}</code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(game.extract_password!, '提取码')}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                     </div>
-                  );
-                })()}
+                  </div>
+                )}
               </div>
 
               {/* Purchase button for VIP users who haven't purchased */}
